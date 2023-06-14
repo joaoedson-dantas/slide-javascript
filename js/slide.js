@@ -26,6 +26,11 @@ export default class Slide {
       moveType = "touchmove";
     }
     this.warapper.addEventListener(moveType, this.onMove);
+    this.transition(false);
+  }
+
+  transition(active) {
+    this.slide.style.transition = active ? "transform .3s" : "";
   }
 
   onMove(event) {
@@ -41,6 +46,18 @@ export default class Slide {
     const moveType = event.type === "mouseup" ? "mousemove" : "touchmove";
     this.warapper.removeEventListener(moveType, this.onMove);
     this.dist.finalPositio = this.dist.movePosition;
+    this.transition(true);
+    this.changeSlideOnEnd();
+  }
+
+  changeSlideOnEnd() {
+    if (this.dist.movement > 120 && this.index.next !== undefined) {
+      this.activeNextSlide();
+    } else if (this.dist.movement < -120 && this.index.prev !== undefined) {
+      this.activePrevSlide();
+    } else {
+      this.changeSlide(this.index.active);
+    }
   }
 
   addSlideEvents() {
@@ -85,9 +102,18 @@ export default class Slide {
     this.dist.finalPositio = activeSlid.position;
   }
 
+  activeNextSlide() {
+    if (this.index.next !== undefined) this.changeSlide(this.index.next);
+  }
+
+  activePrevSlide() {
+    if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
+  }
+
   init() {
-    this.slidesConfig();
     this.bindEvents();
+    this.transition(true);
+    this.slidesConfig();
     this.addSlideEvents();
     return this;
   }
